@@ -85,7 +85,19 @@ class DmsfMailer < Mailer
     @author = author
     unless @links_only
       if File.exist?(email_params[:zipped_content])
-        zipped_content_data = open(email_params[:zipped_content], 'rb') { |io| io.read }
+        #zipped_content_data = open(email_params[:zipped_content], 'rb') { |io| io.read }
+        ### START: ALIFEROPOULOS
+        zipped_content_data = Zip::OutputStream.write_buffer(::StringIO.new(+'', 'wb'), Zip::TraditionalEncrypter.new(email_params[:password])) do |out|
+        Zip::File.open(email_params[:zipped_content], 'rb') do |zip_file|
+          zip_file.each do |entry|
+            Rails.logger.info "Encrypting #{entry.name}"
+            out.put_next_entry(entry.name)
+            out.write entry.get_input_stream.read
+            break
+          end
+        end
+      end
+        #ToDo change Document.zip to <filename>.zip
         attachments['Documents.zip'] = { content_type: 'application/zip', content: zipped_content_data }
       else
         Rails.logger.error "Cannot attach #{email_params[:zipped_content]}, it doesn't exist."
