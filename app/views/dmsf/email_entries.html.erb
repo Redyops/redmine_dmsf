@@ -54,6 +54,10 @@
       <%= text_field_tag 'email[subject]', @email_params[:subject], class: 'dmsf-full-width' %>
     </p>
     <p>
+      <%= label_tag('email[password]', 'Document Password') %>
+      <%= text_field_tag('email[password]', @email_params[:password], :style => 'width: 90%;') %>
+    </p>
+    <p>
       <%= label_tag '', l(:label_email_documents) %>
       <span>
         <%= link_to 'Documents.zip', download_email_entries_path(id: @project, folder_id: @folder,
